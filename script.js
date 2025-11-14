@@ -139,18 +139,38 @@ function clearAuthAlert() {
 function appendMessage(role, text) {
   if (!chatContainer) return;
 
-  const wrapper = document.createElement("div");
-  wrapper.classList.add("chat-row");
-  wrapper.classList.add(role === "user" ? "chat-row-user" : "chat-row-ai");
+  const row = document.createElement("div");
+  row.classList.add("chat-row");
 
   const bubble = document.createElement("div");
   bubble.classList.add("chat-bubble");
-  bubble.classList.add(role === "user" ? "bubble-user" : "bubble-ai");
 
-  bubble.innerText = text;
+  if (role === "user") {
+    // ===== USER (KANAN) =====
+    row.classList.add("chat-row-user");
+    bubble.classList.add("bubble-user");
+    bubble.innerText = text;
+    row.appendChild(bubble);
+  } else {
+    // ===== AZBRY (KIRI + AVATAR) =====
+    row.classList.add("chat-row-ai", "chat-row-ai-avatar");
 
-  wrapper.appendChild(bubble);
-  chatContainer.appendChild(wrapper);
+    const avatar = document.createElement("div");
+    avatar.classList.add("chat-avatar");
+
+    const img = document.createElement("img");
+    img.src = "https://imgkub.com/images/2025/11/13/image.jpg";
+    img.alt = "Azbry AI";
+    avatar.appendChild(img);
+
+    bubble.classList.add("bubble-ai");
+    bubble.innerText = text;
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+  }
+
+  chatContainer.appendChild(row);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
