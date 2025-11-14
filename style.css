@@ -134,87 +134,36 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(12, 17, 28, 0.92);
-  border: 1px solid rgba(99, 255, 187, 0.28);
-  box-shadow: 0 0 20px rgba(0, 255, 170, 0.12);
-  margin-bottom: 12px;
-  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(12, 17, 28, 0.9);
+  border: 1px solid rgba(99, 255, 187, 0.25);
+  box-shadow: 0 0 18px rgba(0, 255, 170, 0.15);
 }
 
-/* Kiri (Nama + subtext) */
-.chat-title {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.chat-title h1 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #3df58a;
-  letter-spacing: 0.4px;
-}
-
-.chat-title span {
-  font-size: 12px;
-  color: #b5ffd8;
-  opacity: 0.9;
-  line-height: 1.2;
-}
-
-/* Kanan (email + logout + status) */
 .chat-header-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* Email user */
-.chat-user-info {
-  display: flex;
-  flex-direction: column;
-  text-align: right;
-}
-
-.chat-user-label {
-  font-size: 11px;
-  opacity: 0.6;
-}
-
-.chat-user-email {
-  font-size: 13px;
-  font-weight: 600;
-  color: #e5e7eb;
-}
-
-/* Logout */
 .logout-btn {
-  padding: 7px 12px;
+  padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(248, 113, 113, 0.6);
-  background: rgba(255, 0, 0, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: rgba(30, 64, 175, 0.15);
   color: #fecaca;
-  cursor: pointer;
   font-size: 12px;
-  transition: 0.15s ease;
+  cursor: pointer;
 }
 
-.logout-btn:hover {
-  background: rgba(255, 0, 0, 0.2);
-  box-shadow: 0 0 10px rgba(255, 98, 98, 0.2);
-  transform: translateY(-1px);
-}
-
-/* Status pill */
 .chat-status-pill {
-  font-size: 11px;
-  padding: 7px 10px;
+  padding: 6px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(61, 245, 138, 0.8);
+  border: 1px solid rgba(61, 245, 138, 0.9);
   background: rgba(61, 245, 138, 0.15);
   color: #c4fce0;
+  font-size: 12px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -225,7 +174,7 @@ body {
   height: 8px;
   border-radius: 50%;
   background: #3df58a;
-  box-shadow: 0 0 5px #3df58a;
+  box-shadow: 0 0 6px #3df58a;
 }
 
 /* ============================
