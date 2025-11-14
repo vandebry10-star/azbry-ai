@@ -11,7 +11,7 @@
 html,
 body {
   height: 100%;
-  overflow: hidden; /* ⬅️ HALAMAN DIKUNCI, GA BISA SCROLL */
+  overflow: hidden; /* halaman ga bisa scroll */
 }
 
 body {
@@ -190,6 +190,7 @@ body {
   opacity: 0.75;
 }
 
+/* kanan header (email + logout + status) */
 .chat-header-right {
   display: flex;
   align-items: center;
@@ -220,10 +221,34 @@ body {
   color: #fecaca;
   font-size: 11px;
   cursor: pointer;
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .logout-btn:hover {
   background: rgba(248, 113, 113, 0.18);
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.35);
+  transform: translateY(-1px);
+}
+
+/* status pill ONLINE */
+.chat-status-pill {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(61, 245, 138, 0.9);
+  color: #c4fce0;
+  background: radial-gradient(circle at left, rgba(61, 245, 138, 0.18), transparent);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #3df58a;
+  box-shadow: 0 0 8px #3df58a;
 }
 
 /* ============================
@@ -238,18 +263,23 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.2);
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* ⬅️ ini penting biar scroll hanya di chatContainer */
+  overflow: hidden; /* biar scroll cuma di chatContainer */
 }
 
+/* Scroll area */
 #chatContainer {
   flex: 1;
-  overflow-y: auto; /* ⬅️ hanya chat yang bisa scroll */
+  overflow-y: auto;
   padding-right: 4px;
+  padding-bottom: 6px;
 }
 
-/* scrollbar */
+/* Custom scrollbar */
 #chatContainer::-webkit-scrollbar {
   width: 6px;
+}
+#chatContainer::-webkit-scrollbar-track {
+  background: transparent;
 }
 #chatContainer::-webkit-scrollbar-thumb {
   background: rgba(148, 163, 184, 0.6);
@@ -257,11 +287,11 @@ body {
 }
 
 /* ============================
-   BUBBLES
+   CHAT ROWS & BUBBLES
 ============================ */
 .chat-row {
   display: flex;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .chat-row-user {
@@ -272,35 +302,71 @@ body {
   justify-content: flex-start;
 }
 
+/* baris AI dengan avatar */
+.chat-row-ai-avatar {
+  align-items: flex-end;
+}
+
+/* avatar Azbry */
+.chat-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-right: 6px;
+  flex-shrink: 0;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  box-shadow: 0 0 10px rgba(15, 23, 42, 0.9);
+}
+
+.chat-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .chat-bubble {
   max-width: 78%;
-  padding: 9px 11px;
-  border-radius: 12px;
+  padding: 9px 12px;
+  border-radius: 18px;
   font-size: 14px;
+  line-height: 1.45;
+  word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
+/* Bubble user (kanan) ala WhatsApp hijau */
 .bubble-user {
-  background: linear-gradient(135deg, #3df58a, #10b981);
+  background: #25d366;
   color: #020617;
+  border-radius: 18px 18px 4px 18px; /* pojok bawah kanan sedikit tajam */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 }
 
+/* Bubble AI (kiri) ala WhatsApp abu */
 .bubble-ai {
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: #111827;
+  border-radius: 18px 18px 18px 4px; /* pojok bawah kiri tajam */
+  border: 1px solid rgba(75, 85, 99, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 }
 
+/* Typing bubble */
 .typing-bubble {
-  opacity: 0.8;
   font-style: italic;
+  font-size: 13px;
+  opacity: 0.8;
 }
 
 /* ============================
-   INPUT AREA
+   INPUT AREA (besar & nempel bawah)
 ============================ */
 .chat-input-area {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid rgba(30, 64, 175, 0.5);
 }
@@ -310,9 +376,10 @@ body {
   background: #020617;
   border-radius: 999px;
   border: 1px solid rgba(148, 163, 184, 0.5);
-  padding: 8px 14px;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .chat-input textarea {
@@ -320,17 +387,48 @@ body {
   background: transparent;
   border: none;
   color: #e5e7eb;
+  font-size: 15px;
+  line-height: 1.4;
+  outline: none;
   resize: none;
+  min-height: 42px;      /* ⬅️ kolom lebih tinggi */
+  max-height: 90px;
 }
 
-/* Send button */
+.chat-input textarea::placeholder {
+  color: rgba(148, 163, 184, 0.8);
+}
+
+/* Tombol kirim */
 .send-btn {
-  min-width: 42px;
-  height: 42px;
+  min-width: 46px;
+  height: 46px;
   border-radius: 999px;
   border: none;
   background: linear-gradient(135deg, #3df58a, #22c55e);
   color: #020617;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.send-btn span {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.send-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.7);
+  filter: brightness(1.05);
+}
+
+.send-btn:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
 
 /* ============================
@@ -340,7 +438,33 @@ body {
   .app-wrapper {
     padding: 10px 10px;
   }
+
+  .chat-header {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .chat-title h1 {
+    font-size: 16px;
+  }
+
+  .chat-header-right {
+    gap: 6px;
+  }
+
   .chat-user-info {
-    display: none;
+    display: none; /* biar header ga sesak di HP */
+  }
+
+  .chat-window {
+    padding: 10px;
+  }
+
+  .chat-bubble {
+    max-width: 82%;
+  }
+
+  .auth-card {
+    padding: 18px 16px 16px;
   }
 }
