@@ -88,7 +88,7 @@ function showChatSection(user) {
   if (!chatHistory.length) {
     appendMessage(
       "assistant",
-      "Halo, gue Azbry AI. Siap bantu lu buat ngoding, bot, atau keuangan. Ketik aja apa yang mau lu tanyain. 💚"
+      "Halo, I am Azbry-AI, Ada yang bisa saya bantu?"
     );
   }
 }
@@ -184,7 +184,7 @@ function showTyping() {
 
   const bubble = document.createElement("div");
   bubble.classList.add("chat-bubble", "bubble-ai", "typing-bubble");
-  bubble.innerText = "Azbry AI sedang berpikir...";
+  bubble.innerText = "Wait Azbry sedang berfikir keras..";
 
   typingEl.appendChild(bubble);
   chatContainer.appendChild(typingEl);
