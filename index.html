@@ -5,18 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Azbry AI</title>
 
+    <!-- Azbry Theme -->
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
     <div class="app-wrapper">
-      <!-- ================ AUTH SECTION ================ -->
+      <!-- ================= AUTH SECTION ================= -->
       <section id="authSection" class="auth-section">
         <div class="auth-card">
           <h1 class="auth-title">Azbry AI</h1>
           <p class="auth-subtitle">
             Silahkan login terlebih dahulu sebelum melanjutkan, jika belum punya akun silahkan Daftar
           </p>
+
+          <!-- Alert untuk error / sukses auth -->
+          <div id="authAlert" class="auth-alert" style="display: none;"></div>
 
           <form id="authForm" class="auth-form">
             <div class="form-group">
@@ -54,13 +58,13 @@
         </div>
       </section>
 
-      <!-- ================ CHAT SECTION ================ -->
+      <!-- ================= CHAT SECTION ================= -->
       <section id="chatSection" class="chat-section" style="display: none">
         <!-- HEADER -->
         <header class="chat-header">
           <div class="chat-title">
             <h1>Azbry AI</h1>
-            <span>Asisten Pribadi berbasis Artificial Intelligence</span>
+            <span>Artificial Intelligence by FebryWesker</span>
           </div>
 
           <div class="chat-header-right">
@@ -76,7 +80,7 @@
         <!-- CHAT WINDOW -->
         <section class="chat-window">
           <div id="chatContainer">
-            <!-- bubble chat dari script.js -->
+            <!-- Bubble chat bakal diisi lewat script.js -->
           </div>
 
           <!-- INPUT AREA -->
