@@ -159,7 +159,7 @@ function appendMessage(role, text) {
     avatar.classList.add("chat-avatar");
 
     const img = document.createElement("img");
-    img.src = "https://imgkub.com/images/2025/11/13/image.jpg";
+    img.src = "https://imgkub.com/images/2025/11/14/image.jpg";
     img.alt = "Azbry AI";
     avatar.appendChild(img);
 
