@@ -15,8 +15,9 @@ body {
 
 body {
   background:
-    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.75)),
-    url("https://imgkub.com/images/2025/11/14/image9501c0c56eacb38f.jpg") no-repeat center center fixed;
+    linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.82)),
+    url("https://imgkub.com/images/2025/11/14/image9501c0c56eacb38f.jpg")
+      no-repeat center center fixed;
   background-size: cover;
   color: #e5e7eb;
   overflow-y: auto;
@@ -86,8 +87,12 @@ body {
   font-size: 14px;
 }
 
+.auth-form input::placeholder {
+  color: rgba(148, 163, 184, 0.8);
+}
+
 .auth-toggle {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 /* ============================
@@ -103,6 +108,12 @@ body {
   color: #020617;
   font-weight: 600;
   transition: 0.1s ease;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: default;
 }
 
 .btn-ghost {
@@ -113,6 +124,7 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.45);
   background: transparent;
   color: #e5e7eb;
+  cursor: pointer;
 }
 
 /* ============================
@@ -127,18 +139,33 @@ body {
 /* ============================
    HEADER
 ============================ */
-/* ============================
-   HEADER (RAPI & SYMMETRIC)
-============================ */
 .chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
   border-radius: 14px;
-  background: rgba(12, 17, 28, 0.9);
+  background: rgba(12, 17, 28, 0.92);
   border: 1px solid rgba(99, 255, 187, 0.25);
   box-shadow: 0 0 18px rgba(0, 255, 170, 0.15);
+}
+
+.chat-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-title h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #3df58a;
+}
+
+.chat-title span {
+  font-size: 12px;
+  color: #b5ffd8;
+  opacity: 0.9;
 }
 
 .chat-header-right {
@@ -155,6 +182,10 @@ body {
   color: #fecaca;
   font-size: 12px;
   cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: rgba(248, 113, 113, 0.2);
 }
 
 .chat-status-pill {
@@ -196,7 +227,16 @@ body {
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
-  padding-bottom: 10px; /* cukup kecil, input sekarang di luar area scroll */
+  padding-bottom: 10px;
+}
+
+/* scrollbar kecil */
+#chatContainer::-webkit-scrollbar {
+  width: 6px;
+}
+#chatContainer::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.7);
+  border-radius: 999px;
 }
 
 /* ============================
@@ -209,10 +249,27 @@ body {
   margin-bottom: 10px;
 }
 
-.chat-row-ai {
+/* kalau pakai class chat-row-ai-avatar + .chat-avatar */
+.chat-row-ai-avatar {
   justify-content: flex-start;
 }
 
+.chat-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgba(61, 245, 138, 0.4);
+  flex-shrink: 0;
+}
+
+.chat-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* fallback kalau img langsung di dalam .chat-row-ai */
 .chat-row-ai img {
   width: 34px;
   height: 34px;
@@ -298,6 +355,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 /* ============================
@@ -307,51 +365,8 @@ body {
   .chat-bubble {
     max-width: 85%;
   }
-}
 
-.chat-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(12, 17, 28, 0.9);
-  border: 1px solid rgba(99, 255, 187, 0.25);
-  box-shadow: 0 0 18px rgba(0, 255, 170, 0.15);
-}
-
-.chat-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logout-btn {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(248, 113, 113, 0.7);
-  background: rgba(30, 64, 175, 0.15);
-  color: #fecaca;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.chat-status-pill {
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(61, 245, 138, 0.9);
-  background: rgba(61, 245, 138, 0.15);
-  color: #c4fce0;
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.chat-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #3df58a;
-  box-shadow: 0 0 6px #3df58a;
-}
+  .chat-header {
+    padding: 10px 10px;
+  }
+   }
