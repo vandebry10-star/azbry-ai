@@ -1,31 +1,31 @@
 // api/azbry-ai.js
 
 // ===== ENV VARS =====
-const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const MODEL_NAME = process.env.MODEL_NAME || "deepseek-chat";
+const MODEL_NAME = "llama-3.1-70b-versatile"; // model Groq
 
-// ===== CALL DEEPSEEK (CHAT COMPLETIONS) =====
-async function callDeepSeek(messages) {
-  if (!DEEPSEEK_API_KEY) {
+// ===== CALL GROQ (CHAT COMPLETIONS) =====
+async function callGroq(messages) {
+  if (!GROQ_API_KEY) {
     return {
       reply:
-        "DEEPSEEK_API_KEY belum di-set di Vercel. Tambahin dulu di Environment Variables ya.",
+        "GROQ_API_KEY belum di-set di Vercel. Tambahin dulu di Environment Variables ya.",
     };
   }
 
   try {
     const res = await fetch(
-      "https://api.deepseek.com/chat/completions",
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+          Authorization: `Bearer ${GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: MODEL_NAME, // deepseek-chat / deepseek-reasoner
+          model: MODEL_NAME,
           messages,
           stream: false,
         }),
@@ -34,28 +34,33 @@ async function callDeepSeek(messages) {
 
     if (!res.ok) {
       const txt = await res.text();
-      console.error("DeepSeek HTTP error:", res.status, txt);
-      return {
-        reply: `Azbry AI lagi error dari sisi model (HTTP ${res.status}). Coba lagi nanti ya.`,
-      };
+      console.error("Groq HTTP error:", res.status, txt);
+
+      let msg = `Azbry AI lagi error dari sisi model (HTTP ${res.status}).`;
+      try {
+        const j = JSON.parse(txt);
+        if (j.error?.message) msg = `Groq: ${j.error.message}`;
+      } catch (_) {}
+
+      return { reply: msg };
     }
 
     const data = await res.json();
     const reply =
       data.choices?.[0]?.message?.content ||
-      "Model DeepSeek nggak ngasih jawaban. Coba tanya ulang ya.";
+      "Model Groq nggak ngasih jawaban. Coba tanya ulang ya.";
 
     return { reply };
   } catch (err) {
-    console.error("DeepSeek fetch error:", err);
+    console.error("Groq fetch error:", err);
     return {
       reply:
-        "Azbry AI nggak bisa nyambung ke DeepSeek (network error). Coba cek koneksi / tunggu sebentar.",
+        "Azbry AI nggak bisa nyambung ke Groq (network error). Coba cek koneksi / tunggu sebentar.",
     };
   }
 }
 
-// ===== SUPABASE HELPERS (SESSION + LOG) =====
+// ===== SUPABASE HELPERS =====
 function sbHeaders() {
   return {
     apikey: SUPABASE_SERVICE_ROLE_KEY,
@@ -64,14 +69,12 @@ function sbHeaders() {
   };
 }
 
-// Pastikan session row ada di azbry_ai_sessions
 async function ensureSession(sessionExternalId) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !sessionExternalId) return null;
 
   const base = `${SUPABASE_URL}/rest/v1`;
   const headers = sbHeaders();
 
-  // cek existing
   const q = `${base}/azbry_ai_sessions?external_id=eq.${encodeURIComponent(
     sessionExternalId
   )}&select=id&limit=1`;
@@ -82,11 +85,9 @@ async function ensureSession(sessionExternalId) {
       console.error("Supabase get session error:", res.status);
       return null;
     }
-
     const rows = await res.json();
     if (rows.length > 0) return rows[0].id;
 
-    // insert baru kalau belum ada
     const insertRes = await fetch(`${base}/azbry_ai_sessions`, {
       method: "POST",
       headers,
@@ -106,7 +107,6 @@ async function ensureSession(sessionExternalId) {
   }
 }
 
-// Simpan 2 row: user & assistant
 async function logMessages(sessionDbId, userMessage, aiReply) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !sessionDbId) return;
   const base = `${SUPABASE_URL}/rest/v1`;
@@ -147,7 +147,6 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Pesan nggak kebaca di backend." });
     }
 
-    // ambil history terakhir biar nggak kepanjangan
     const shortHistory = Array.isArray(history) ? history.slice(-8) : [];
 
     const messages = [
@@ -165,10 +164,8 @@ export default async function handler(req, res) {
       { role: "user", content: message },
     ];
 
-    // panggil DeepSeek
-    const { reply } = await callDeepSeek(messages);
+    const { reply } = await callGroq(messages);
 
-    // log ke Supabase
     let sessionDbId = null;
     if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && sessionId) {
       sessionDbId = await ensureSession(sessionId);
