@@ -2,10 +2,12 @@
 // AZBRY AI - FRONTEND CONFIG
 // ===============================
 
-// Ganti ini nanti kalau backend sudah siap (misal: /api/azbry-ai di Vercel)
 const AZBRY_AI_ENDPOINT = "/api/azbry-ai";
 
-// Simpan riwayat chat di memori lokal (optional)
+// simpan sessionId per browser (kayak tab chat GPT)
+let sessionId = null;
+
+// history (buat konteks percakapan)
 let chatHistory = []; // { role: 'user'|'assistant', content: '...' }
 
 
@@ -13,16 +15,45 @@ let chatHistory = []; // { role: 'user'|'assistant', content: '...' }
 // ELEMENT HELPER
 // ===============================
 
-const chatContainer = document.getElementById("chatContainer"); // div utk bubble chat
-const chatForm = document.getElementById("chatForm");           // <form> input chat
-const messageInput = document.getElementById("messageInput");   // <input> / <textarea>
-const sendButton = document.getElementById("sendButton");       // tombol kirim (optional)
+const chatContainer = document.getElementById("chatContainer");
+const chatForm = document.getElementById("chatForm");
+const messageInput = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
 
-// fallback kalau elemen belum ada
 if (!chatContainer || !chatForm || !messageInput) {
   console.warn(
-    "[Azbry AI] Pastikan HTML punya elemen dengan id: chatContainer, chatForm, messageInput."
+    "[Azbry AI] Pastikan HTML punya #chatContainer, #chatForm, #messageInput."
   );
+}
+
+
+// ===============================
+// SESSION ID (PER BROWSER)
+// ===============================
+
+function initSession() {
+  const key = "azbry_ai_session_id";
+  let saved = null;
+
+  try {
+    saved = localStorage.getItem(key);
+  } catch (_) {}
+
+  if (saved) {
+    sessionId = saved;
+    return;
+  }
+
+  // generate session id baru
+  if (crypto.randomUUID) {
+    sessionId = crypto.randomUUID();
+  } else {
+    sessionId = "session-" + Date.now() + "-" + Math.random().toString(16).slice(2);
+  }
+
+  try {
+    localStorage.setItem(key, sessionId);
+  } catch (_) {}
 }
 
 
@@ -41,13 +72,10 @@ function appendMessage(role, text) {
   bubble.classList.add("chat-bubble");
   bubble.classList.add(role === "user" ? "bubble-user" : "bubble-ai");
 
-  // biar line break (\n) kebaca
   bubble.innerText = text;
 
   wrapper.appendChild(bubble);
   chatContainer.appendChild(wrapper);
-
-  // auto scroll ke bawah
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
@@ -60,7 +88,6 @@ let typingEl = null;
 
 function showTyping() {
   if (!chatContainer) return;
-
   typingEl = document.createElement("div");
   typingEl.classList.add("chat-row", "chat-row-ai");
 
@@ -86,46 +113,34 @@ function hideTyping() {
 // ===============================
 
 async function sendToAzbryAI(message) {
-  // kalau backend belum disiapin, balikin dummy
-  if (!AZBRY_AI_ENDPOINT) {
-    return {
-      reply: "Backend Azbry AI belum di-setup. Silakan hubungi developer (Febry) dulu. 💚"
-    };
-  }
-
   try {
     const res = await fetch(AZBRY_AI_ENDPOINT, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message,
-        history: chatHistory // bisa dipakai backend buat konteks percakapan
-      })
+        history: chatHistory,
+        sessionId, // 🔥 kirim session id ke backend
+      }),
     });
 
     if (!res.ok) {
       console.error("[Azbry AI] HTTP Error:", res.status, res.statusText);
       return {
-        reply: `Azbry AI lagi error (HTTP ${res.status}). Coba lagi nanti ya.`
+        reply: `Azbry AI lagi error (HTTP ${res.status}). Coba lagi nanti ya.`,
       };
     }
 
     const data = await res.json();
-
-    // Expected shape: { reply: "..." }
     if (!data || typeof data.reply !== "string") {
-      return {
-        reply: "Azbry AI balasannya nggak kebaca. Cek backend dulu ya."
-      };
+      return { reply: "Azbry AI balasannya nggak kebaca. Cek backend dulu ya." };
     }
 
     return data;
   } catch (err) {
     console.error("[Azbry AI] Fetch error:", err);
     return {
-      reply: "Azbry AI nggak bisa dihubungi (network error). Coba cek koneksi / server."
+      reply: "Azbry AI nggak bisa dihubungi (network error). Coba cek koneksi / server.",
     };
   }
 }
@@ -140,24 +155,18 @@ async function handleChatSubmit(e) {
   const text = messageInput.value.trim();
   if (!text) return;
 
-  // tampilkan chat user
   appendMessage("user", text);
   chatHistory.push({ role: "user", content: text });
 
-  // kosongkan input
   messageInput.value = "";
   messageInput.focus();
 
-  // tampilkan typing indicator
   showTyping();
 
-  // kirim ke backend
   const result = await sendToAzbryAI(text);
 
-  // hilangkan typing
   hideTyping();
 
-  // tampilkan jawaban AI
   appendMessage("assistant", result.reply);
   chatHistory.push({ role: "assistant", content: result.reply });
 }
@@ -168,11 +177,12 @@ async function handleChatSubmit(e) {
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
+  initSession();
+
   if (chatForm) {
     chatForm.addEventListener("submit", handleChatSubmit);
   }
 
-  // optional: sambutan awal
   appendMessage(
     "assistant",
     "Halo, gue Azbry AI. Siap bantu lu buat ngoding, bot, atau keuangan. Ketik aja apa yang mau lu tanyain. 💚"
