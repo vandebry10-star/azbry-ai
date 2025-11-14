@@ -4,7 +4,7 @@
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const MODEL_NAME = "llama-3.1-70b-versatile"; // model Groq
+const MODEL_NAME = "llama-3.3-70b-versatile"; // model Groq
 
 // ===== CALL GROQ (CHAT COMPLETIONS) =====
 async function callGroq(messages) {
