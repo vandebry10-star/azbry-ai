@@ -107,7 +107,7 @@ function showTyping() {
 
   const bubble = document.createElement("div");
   bubble.classList.add("chat-bubble", "bubble-ai", "typing-bubble");
-  bubble.innerText = "Azbry AI sedang berpikir...";
+  bubble.innerText = "Tunggu sebentar...";
 
   typingEl.appendChild(bubble);
   chatContainer.appendChild(typingEl);
@@ -287,7 +287,7 @@ async function handleLogout() {
   chatContainer.innerHTML = "";
   appendMessage(
     "assistant",
-    "Halo, gue Azbry AI. Silakan login lagi buat lanjut ngobrol. 💚"
+    "Halo, Aku Azbry AI. gimana hari ini?"
   );
   showAuth();
 }
