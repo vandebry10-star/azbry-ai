@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Azbry AI</title>
+
+  <!-- Azbry Theme -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app-wrapper">
+    <!-- HEADER -->
+    <header class="chat-header">
+      <div class="chat-title">
+        <h1>Azbry AI</h1>
+        <span>Asisten pribadi buat ngoding, bot, dan keuangan.</span>
+      </div>
+      <div class="chat-status-pill">
+        <span class="chat-status-dot"></span>
+        <span>Online</span>
+      </div>
+    </header>
+
+    <!-- CHAT WINDOW -->
+    <section class="chat-window">
+      <div id="chatContainer">
+        <!-- Bubble chat bakal diisi lewat script.js -->
+      </div>
+
+      <!-- INPUT AREA -->
+      <form id="chatForm" class="chat-input-area">
+        <div class="chat-input">
+          <textarea
+            id="messageInput"
+            rows="1"
+            placeholder="Tulis pesan ke Azbry AI..."
+          ></textarea>
+        </div>
+        <button id="sendButton" type="submit" class="send-btn">
+          <span>➤</span>
+        </button>
+      </form>
+    </section>
+  </div>
+
+  <!-- SCRIPT -->
+  <script src="script.js"></script>
+</body>
+</html>
