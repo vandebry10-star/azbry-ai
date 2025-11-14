@@ -31,6 +31,134 @@ body {
 }
 
 /* ============================
+   GENERIC BUTTONS
+============================ */
+.btn-primary {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #3df58a, #22c55e);
+  color: #020617;
+  box-shadow: 0 0 14px rgba(61, 245, 138, 0.45);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 18px rgba(61, 245, 138, 0.7);
+  filter: brightness(1.05);
+}
+
+.btn-primary:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 0 8px rgba(61, 245, 138, 0.6);
+}
+
+.btn-ghost {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: transparent;
+  color: #e5e7eb;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0.85;
+  transition: background 0.1s ease, opacity 0.1s ease, transform 0.1s ease;
+}
+
+.btn-ghost:hover {
+  background: rgba(15, 23, 42, 0.9);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
+/* ============================
+   AUTH SECTION
+============================ */
+.auth-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 22px 20px 18px;
+  border-radius: 18px;
+  background: rgba(10, 14, 25, 0.96);
+  border: 1px solid rgba(99, 255, 187, 0.25);
+  box-shadow: 0 0 30px rgba(0, 255, 170, 0.18);
+}
+
+.auth-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #3df58a;
+  margin-bottom: 4px;
+}
+
+.auth-subtitle {
+  font-size: 13px;
+  opacity: 0.8;
+  margin-bottom: 16px;
+}
+
+.auth-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.auth-form label {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.auth-form input {
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 14px;
+  outline: none;
+}
+
+.auth-form input::placeholder {
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.auth-form input:focus {
+  border-color: rgba(61, 245, 138, 0.9);
+  box-shadow: 0 0 0 1px rgba(61, 245, 138, 0.4);
+}
+
+.auth-toggle {
+  font-size: 12px;
+}
+
+/* ============================
+   CHAT SECTION WRAPPER
+============================ */
+.chat-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ============================
    HEADER
 ============================ */
 .chat-header {
@@ -61,6 +189,47 @@ body {
   opacity: 0.75;
 }
 
+/* kanan header (email + logout + status) */
+.chat-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.chat-user-label {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+.chat-user-email {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.logout-btn {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.7);
+  background: rgba(30, 64, 175, 0.15);
+  color: #fecaca;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(248, 113, 113, 0.18);
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.35);
+  transform: translateY(-1px);
+}
+
+/* status pill */
 .chat-status-pill {
   font-size: 11px;
   padding: 6px 10px;
@@ -229,7 +398,7 @@ body {
   box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
 }
 
-/* Icon inside button (optional) */
+/* Icon inside button */
 .send-btn span {
   font-weight: 700;
   font-size: 14px;
@@ -245,10 +414,19 @@ body {
 
   .chat-header {
     padding: 8px 10px;
+    gap: 10px;
   }
 
   .chat-title h1 {
     font-size: 16px;
+  }
+
+  .chat-header-right {
+    gap: 6px;
+  }
+
+  .chat-user-info {
+    display: none; /* kalau mau disembunyiin di HP bisa gini */
   }
 
   .chat-window {
@@ -258,4 +436,8 @@ body {
   .chat-bubble {
     max-width: 82%;
   }
-    }
+
+  .auth-card {
+    padding: 18px 16px 16px;
+  }
+   }
