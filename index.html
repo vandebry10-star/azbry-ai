@@ -16,8 +16,12 @@
         <div class="auth-card">
           <h1 class="auth-title">Azbry AI</h1>
           <p class="auth-subtitle">
-            Silahkan login terlebih dahulu sebelum melanjutkan, jika belum punya akun silahkan Daftar
+            Silahkan login terlebih dahulu sebelum melanjutkan.<br />
+            Kalau belum punya akun, daftar dulu ya.
           </p>
+
+          <!-- BOX NOTIF -->
+          <div id="authAlert" class="auth-alert" style="display: none"></div>
 
           <form id="authForm" class="auth-form">
             <div class="form-group">
@@ -61,7 +65,7 @@
         <header class="chat-header">
           <div class="chat-title">
             <h1>Azbry AI</h1>
-            <span>Asisten Pribadi berbasis Artificial Intelligence</span>
+            <span>Artificial Intelligence by FebryWesker. Ada yang bisa saya bantu?</span>
           </div>
 
           <div class="chat-header-right">
@@ -103,7 +107,6 @@
     </div>
 
     <!-- SCRIPTS -->
-    <!-- Supabase client harus ada sebelum script.js -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
   </body>
