@@ -185,7 +185,7 @@ function showTyping() {
 
   const bubble = document.createElement("div");
   bubble.classList.add("chat-bubble", "bubble-ai", "typing-bubble");
-  bubble.innerText = "Wait Azbry sedang berfikir keras..";
+  bubble.innerText = "Wait...";
 
   typingEl.appendChild(bubble);
   chatContainer.appendChild(typingEl);
