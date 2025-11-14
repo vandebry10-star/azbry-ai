@@ -10,29 +10,29 @@
 
 html,
 body {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
-  background: radial-gradient(circle at top, #1b2233 0, #05070b 45%, #020308 100%);
+  background:
+    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.75)),
+    url("https://imgkub.com/images/2025/11/14/image9501c0c56eacb38f.jpg") no-repeat center center fixed;
+  background-size: cover;
   color: #e5e7eb;
-  overflow: hidden; /* ⬅ HALAMAN TIDAK BISA SCROLL */
+  overflow-y: auto;
 }
-
 
 /* ============================
    WRAPPER
 ============================ */
 .app-wrapper {
   max-width: 900px;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0 auto;
   padding: 16px 14px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
-
 
 /* ============================
    AUTH SECTION
@@ -90,7 +90,6 @@ body {
   margin-top: 10px;
 }
 
-
 /* ============================
    BUTTONS
 ============================ */
@@ -116,7 +115,6 @@ body {
   color: #e5e7eb;
 }
 
-
 /* ============================
    CHAT SECTION
 ============================ */
@@ -124,9 +122,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
-
 
 /* ============================
    HEADER
@@ -181,7 +177,6 @@ body {
   box-shadow: 0 0 6px #3df58a;
 }
 
-
 /* ============================
    CHAT WINDOW
 ============================ */
@@ -194,18 +189,15 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.2);
   display: flex;
   flex-direction: column;
-  position: relative;
-  min-height: 0;
 }
 
-/* AREA CHAT SCROLL */
+/* area chat scroll */
 #chatContainer {
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
-  padding-bottom: 90px; /* ruang untuk input */
+  padding-bottom: 10px; /* cukup kecil, input sekarang di luar area scroll */
 }
-
 
 /* ============================
    CHAT BUBBLES (WhatsApp style)
@@ -215,6 +207,10 @@ body {
   align-items: flex-end;
   gap: 8px;
   margin-bottom: 10px;
+}
+
+.chat-row-ai {
+  justify-content: flex-start;
 }
 
 .chat-row-ai img {
@@ -251,19 +247,23 @@ body {
   border-bottom-left-radius: 4px;
 }
 
-
+/* typing bubble (kalau dipakai) */
+.typing-bubble {
+  font-style: italic;
+  font-size: 13px;
+  opacity: 0.8;
+}
 
 /* ============================
-   INPUT FIXED BOTTOM
+   INPUT AREA (DI BAWAH CHAT)
 ============================ */
 .chat-input-area {
-  position: absolute;
-  bottom: 10px;
-  left: 12px;
-  right: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(30, 64, 175, 0.5);
 }
 
 .chat-input {
@@ -299,7 +299,6 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 
 /* ============================
    RESPONSIVE
