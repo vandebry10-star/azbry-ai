@@ -1,13 +1,11 @@
 /* ============================
    SUPABASE CLIENT
 ============================ */
-const SUPABASE_URL = "https://mxmnmujsqhzrmivdiqvk.supabase.co"; // <-- punyamu
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14bW5tdWpzcWh6cm1pdmRpcXZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwMjYyMzAsImV4cCI6MjA3ODYwMjIzMH0.BZHHWmSXPwuF1jtIxd4tvIFHke7c5QyiP55lE1oBNVo";  // <-- ganti
+const SUPABASE_URL = "https://mxmnmujsqhzrmivdiqvk.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14bW5tdWpzcWh6cm1pdmRpcXZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwMjYyMzAsImV4cCI6MjA3ODYwMjIzMH0.BZHHWmSXPwuF1jtIxd4tvIFHke7c5QyiP55lE1oBNVo";
 
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ============================
    AZBRY AI API ENDPOINT
@@ -35,7 +33,6 @@ const authPassword = document.getElementById("authPassword");
 const authSubmit = document.getElementById("authSubmit");
 const toggleAuthModeBtn = document.getElementById("toggleAuthMode");
 const authAlert = document.getElementById("authAlert");
-const userEmailLabel = document.getElementById("userEmailLabel");
 const logoutButton = document.getElementById("logoutButton");
 
 // Chat
@@ -75,14 +72,15 @@ function initSession() {
    AUTH UI HELPERS
 ============================ */
 function showAuthSection() {
+  if (!authSection || !chatSection) return;
   authSection.style.display = "flex";
   chatSection.style.display = "none";
 }
 
 function showChatSection(user) {
+  if (!authSection || !chatSection) return;
   authSection.style.display = "none";
   chatSection.style.display = "block";
-  userEmailLabel.textContent = user?.email || "-";
 
   // kalau baru login, tampilin welcome message
   if (!chatHistory.length) {
@@ -97,18 +95,21 @@ function setAuthMode(loginMode) {
   isLoginMode = loginMode;
   clearAuthAlert();
 
-  if (isLoginMode) {
-    document.querySelector(".auth-title").textContent = "Login Azbry AI";
-    authSubmit.textContent = "Login";
-    toggleAuthModeBtn.textContent = "Belum punya akun? Daftar";
-  } else {
-    document.querySelector(".auth-title").textContent = "Daftar Azbry AI";
-    authSubmit.textContent = "Daftar";
-    toggleAuthModeBtn.textContent = "Sudah punya akun? Login";
+  const titleEl = document.querySelector(".auth-title");
+  if (titleEl) {
+    titleEl.textContent = isLoginMode ? "Login Azbry AI" : "Daftar Azbry AI";
+  }
+
+  if (authSubmit) authSubmit.textContent = isLoginMode ? "Login" : "Daftar";
+  if (toggleAuthModeBtn) {
+    toggleAuthModeBtn.textContent = isLoginMode
+      ? "Belum punya akun? Daftar"
+      : "Sudah punya akun? Login";
   }
 }
 
 function setAuthLoading(loading) {
+  if (!authSubmit) return;
   authSubmit.disabled = loading;
   authSubmit.textContent = loading
     ? isLoginMode
@@ -291,7 +292,6 @@ async function handleAuthSubmit(e) {
       });
 
       if (error) {
-        // Beberapa pesan umum dari Supabase
         if (
           error.message &&
           error.message.toLowerCase().includes("invalid login credentials")
@@ -329,7 +329,7 @@ async function handleAuthSubmit(e) {
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin, // setelah klik verif, balik ke web ini
+          emailRedirectTo: window.location.origin,
         },
       });
 
@@ -352,7 +352,6 @@ async function handleAuthSubmit(e) {
         "Pendaftaran berhasil. Cek email kamu untuk verifikasi, lalu login.",
         "success"
       );
-      // balik ke mode login biar user langsung login setelah verif
       setAuthMode(true);
     }
   } catch (err) {
