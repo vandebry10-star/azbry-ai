@@ -1,57 +1,55 @@
-// ===============================
-// SUPABASE CONFIG (AUTH)
-// ===============================
-const SUPABASE_URL = "https://mxmnmujsqhzrmivdiqvk.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14bW5tdWpzcWh6cm1pdmRpcXZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwMjYyMzAsImV4cCI6MjA3ODYwMjIzMH0.BZHHWmSXPwuF1jtIxd4tvIFHke7c5QyiP55lE1oBNVo";
+/* ============================
+   SUPABASE CLIENT
+============================ */
+const SUPABASE_URL = "https://mxmnmujsqhzrmivdiqvk.supabase.co"; // <-- punyamu
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14bW5tdWpzcWh6cm1pdmRpcXZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwMjYyMzAsImV4cCI6MjA3ODYwMjIzMH0.BZHHWmSXPwuF1jtIxd4tvIFHke7c5QyiP55lE1oBNVo";  // <-- ganti
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
-// ===============================
-// AZBRY AI - FRONTEND CONFIG
-// ===============================
+/* ============================
+   AZBRY AI API ENDPOINT
+============================ */
 const AZBRY_AI_ENDPOINT = "/api/azbry-ai";
 
-// simpan sessionId per browser (kayak tab chat GPT)
-let sessionId = null;
-
-// history (buat konteks percakapan)
+/* ============================
+   STATE
+============================ */
+let sessionId = null; // id percakapan per browser
 let chatHistory = []; // { role: 'user'|'assistant', content: '...' }
+let isLoginMode = true; // true = login, false = daftar
 
-// ===============================
-// ELEMENT HELPER
-// ===============================
+/* ============================
+   ELEMENTS
+============================ */
 
-// chat
+// Auth
+const authSection = document.getElementById("authSection");
+const chatSection = document.getElementById("chatSection");
+
+const authForm = document.getElementById("authForm");
+const authEmail = document.getElementById("authEmail");
+const authPassword = document.getElementById("authPassword");
+const authSubmit = document.getElementById("authSubmit");
+const toggleAuthModeBtn = document.getElementById("toggleAuthMode");
+const authAlert = document.getElementById("authAlert");
+const userEmailLabel = document.getElementById("userEmailLabel");
+const logoutButton = document.getElementById("logoutButton");
+
+// Chat
 const chatContainer = document.getElementById("chatContainer");
 const chatForm = document.getElementById("chatForm");
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
 
-// auth
-const authSection = document.getElementById("authSection");
-const chatSection = document.getElementById("chatSection");
-const authForm = document.getElementById("authForm");
-const authEmailInput = document.getElementById("authEmail");
-const authPasswordInput = document.getElementById("authPassword");
-const authSubmitBtn = document.getElementById("authSubmit");
-const toggleAuthModeBtn = document.getElementById("toggleAuthMode");
-const logoutButton = document.getElementById("logoutButton");
-const userEmailLabel = document.getElementById("userEmailLabel");
-
-if (!chatContainer || !chatForm || !messageInput) {
-  console.warn(
-    "[Azbry AI] Pastikan HTML punya #chatContainer, #chatForm, #messageInput."
-  );
-}
-
-// ===============================
-// SESSION ID (PER BROWSER)
-// ===============================
+/* ============================
+   SESSION ID (LOCAL)
+============================ */
 function initSession() {
   const key = "azbry_ai_session_id";
   let saved = null;
-
   try {
     saved = localStorage.getItem(key);
   } catch (_) {}
@@ -61,7 +59,6 @@ function initSession() {
     return;
   }
 
-  // generate session id baru
   if (crypto.randomUUID) {
     sessionId = crypto.randomUUID();
   } else {
@@ -74,9 +71,71 @@ function initSession() {
   } catch (_) {}
 }
 
-// ===============================
-// RENDER BUBBLE CHAT
-// ===============================
+/* ============================
+   AUTH UI HELPERS
+============================ */
+function showAuthSection() {
+  authSection.style.display = "flex";
+  chatSection.style.display = "none";
+}
+
+function showChatSection(user) {
+  authSection.style.display = "none";
+  chatSection.style.display = "block";
+  userEmailLabel.textContent = user?.email || "-";
+
+  // kalau baru login, tampilin welcome message
+  if (!chatHistory.length) {
+    appendMessage(
+      "assistant",
+      "Halo, gue Azbry AI. Siap bantu lu buat ngoding, bot, atau keuangan. Ketik aja apa yang mau lu tanyain. 💚"
+    );
+  }
+}
+
+function setAuthMode(loginMode) {
+  isLoginMode = loginMode;
+  clearAuthAlert();
+
+  if (isLoginMode) {
+    document.querySelector(".auth-title").textContent = "Login Azbry AI";
+    authSubmit.textContent = "Login";
+    toggleAuthModeBtn.textContent = "Belum punya akun? Daftar";
+  } else {
+    document.querySelector(".auth-title").textContent = "Daftar Azbry AI";
+    authSubmit.textContent = "Daftar";
+    toggleAuthModeBtn.textContent = "Sudah punya akun? Login";
+  }
+}
+
+function setAuthLoading(loading) {
+  authSubmit.disabled = loading;
+  authSubmit.textContent = loading
+    ? isLoginMode
+      ? "Memproses..."
+      : "Mendaftar..."
+    : isLoginMode
+    ? "Login"
+    : "Daftar";
+}
+
+function showAuthAlert(message, type = "error") {
+  if (!authAlert) return;
+  authAlert.style.display = "block";
+  authAlert.textContent = message;
+  authAlert.className = "auth-alert " + type; // "error" atau "success"
+}
+
+function clearAuthAlert() {
+  if (!authAlert) return;
+  authAlert.style.display = "none";
+  authAlert.textContent = "";
+  authAlert.className = "auth-alert";
+}
+
+/* ============================
+   CHAT RENDER
+============================ */
 function appendMessage(role, text) {
   if (!chatContainer) return;
 
@@ -95,9 +154,7 @@ function appendMessage(role, text) {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// ===============================
-// TYPING INDICATOR
-// ===============================
+/* TYPING INDICATOR */
 let typingEl = null;
 
 function showTyping() {
@@ -107,7 +164,7 @@ function showTyping() {
 
   const bubble = document.createElement("div");
   bubble.classList.add("chat-bubble", "bubble-ai", "typing-bubble");
-  bubble.innerText = "Tunggu sebentar...";
+  bubble.innerText = "Azbry AI sedang berpikir...";
 
   typingEl.appendChild(bubble);
   chatContainer.appendChild(typingEl);
@@ -121,27 +178,18 @@ function hideTyping() {
   typingEl = null;
 }
 
-// ===============================
-// KIRIM KE BACKEND (CALL API)
-// ===============================
+/* ============================
+   CALL BACKEND AZBRY AI
+============================ */
 async function sendToAzbryAI(message) {
   try {
-    // ambil access token supabase (biar nanti bisa dipake backend kalau perlu)
-    const { data } = await supabase.auth.getSession();
-    const accessToken = data?.session?.access_token || null;
-
-    const headers = { "Content-Type": "application/json" };
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
-    }
-
     const res = await fetch(AZBRY_AI_ENDPOINT, {
       method: "POST",
-      headers,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message,
         history: chatHistory,
-        sessionId, // 🔥 kirim session id ke backend
+        sessionId,
       }),
     });
 
@@ -152,14 +200,14 @@ async function sendToAzbryAI(message) {
       };
     }
 
-    const dataJson = await res.json();
-    if (!dataJson || typeof dataJson.reply !== "string") {
+    const data = await res.json();
+    if (!data || typeof data.reply !== "string") {
       return {
         reply: "Azbry AI balasannya nggak kebaca. Cek backend dulu ya.",
       };
     }
 
-    return dataJson;
+    return data;
   } catch (err) {
     console.error("[Azbry AI] Fetch error:", err);
     return {
@@ -169,21 +217,13 @@ async function sendToAzbryAI(message) {
   }
 }
 
-// ===============================
-// HANDLE CHAT FORM
-// ===============================
+/* ============================
+   HANDLE CHAT SUBMIT
+============================ */
 async function handleChatSubmit(e) {
   e.preventDefault();
   const text = messageInput.value.trim();
   if (!text) return;
-
-  // pastikan user sudah login
-  const { data } = await supabase.auth.getSession();
-  if (!data?.session) {
-    alert("Lu harus login dulu sebelum chat sama Azbry AI.");
-    showAuth();
-    return;
-  }
 
   appendMessage("user", text);
   chatHistory.push({ role: "user", content: text });
@@ -201,148 +241,147 @@ async function handleChatSubmit(e) {
   chatHistory.push({ role: "assistant", content: result.reply });
 }
 
-// ===============================
-// AUTH UI HELPERS
-// ===============================
-function showAuth() {
-  if (authSection) authSection.style.display = "flex";
-  if (chatSection) chatSection.style.display = "none";
-}
-
-function showChat(user) {
-  if (authSection) authSection.style.display = "none";
-  if (chatSection) chatSection.style.display = "flex";
-
-  if (userEmailLabel) {
-    userEmailLabel.innerText = user?.email || "";
-  }
-}
-
-// ===============================
-// AUTH LOGIC (LOGIN / REGISTER)
-// ===============================
-let authMode = "login"; // 'login' | 'register'
-
+/* ============================
+   AUTH HANDLERS (LOGIN / REGISTER)
+============================ */
 async function handleAuthSubmit(e) {
   e.preventDefault();
-  const email = authEmailInput.value.trim();
-  const password = authPasswordInput.value.trim();
+  clearAuthAlert();
+
+  const email = authEmail.value.trim();
+  const password = authPassword.value.trim();
 
   if (!email || !password) {
-    alert("Email & password wajib diisi.");
+    showAuthAlert("Email dan password wajib diisi.", "error");
+    return;
+  }
+  if (password.length < 6) {
+    showAuthAlert("Password minimal 6 karakter.", "error");
     return;
   }
 
+  setAuthLoading(true);
+
   try {
-    if (authMode === "login") {
+    if (isLoginMode) {
+      // LOGIN
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      if (error) throw error;
 
-      // berhasil login
-      showChat(data.user);
+      if (error) {
+        // Beberapa pesan umum dari Supabase
+        if (
+          error.message &&
+          error.message.toLowerCase().includes("invalid login credentials")
+        ) {
+          showAuthAlert(
+            "Email atau password salah, atau akun belum terdaftar.",
+            "error"
+          );
+        } else if (
+          error.message &&
+          error.message.toLowerCase().includes("email not confirmed")
+        ) {
+          showAuthAlert(
+            "Email kamu belum terverifikasi. Cek inbox / spam dan klik link verifikasi dulu.",
+            "error"
+          );
+        } else {
+          showAuthAlert("Gagal login: " + error.message, "error");
+        }
+        return;
+      }
+
+      if (!data?.user) {
+        showAuthAlert("Gagal login: user tidak ditemukan.", "error");
+        return;
+      }
+
+      showAuthAlert("Login berhasil. Selamat datang kembali!", "success");
+      setTimeout(() => {
+        showChatSection(data.user);
+      }, 400);
     } else {
-      // REGISTER → kirim email konfirmasi
-      const { error } = await supabase.auth.signUp({
+      // REGISTER
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: window.location.origin, // setelah klik verif balik ke site ini
+          emailRedirectTo: window.location.origin, // setelah klik verif, balik ke web ini
         },
       });
-      if (error) throw error;
 
-      alert(
-        "Registrasi berhasil! Cek email lu buat konfirmasi akun sebelum login."
+      if (error) {
+        if (
+          error.message &&
+          error.message.toLowerCase().includes("user already registered")
+        ) {
+          showAuthAlert(
+            "Email sudah terdaftar. Silakan login pakai email tersebut.",
+            "error"
+          );
+        } else {
+          showAuthAlert("Gagal daftar: " + error.message, "error");
+        }
+        return;
+      }
+
+      showAuthAlert(
+        "Pendaftaran berhasil. Cek email kamu untuk verifikasi, lalu login.",
+        "success"
       );
+      // balik ke mode login biar user langsung login setelah verif
+      setAuthMode(true);
     }
   } catch (err) {
-    console.error("[Azbry AI Auth] error:", err);
-    alert(err.message || "Gagal proses auth. Coba lagi.");
+    console.error(err);
+    showAuthAlert("Terjadi error saat proses auth.", "error");
+  } finally {
+    setAuthLoading(false);
   }
 }
 
-function toggleAuthMode() {
-  if (!authSubmitBtn || !toggleAuthModeBtn) return;
-
-  if (authMode === "login") {
-    authMode = "register";
-    authSubmitBtn.textContent = "Daftar & Kirim Link Verif";
-    toggleAuthModeBtn.textContent = "Sudah punya akun? Login";
-  } else {
-    authMode = "login";
-    authSubmitBtn.textContent = "Login";
-    toggleAuthModeBtn.textContent = "Belum punya akun? Daftar";
-  }
-}
-
-// ===============================
-// LOGOUT
-// ===============================
+/* ============================
+   LOGOUT
+============================ */
 async function handleLogout() {
   await supabase.auth.signOut();
   chatHistory = [];
-  chatContainer.innerHTML = "";
-  appendMessage(
-    "assistant",
-    "Halo, Aku Azbry AI. gimana hari ini?"
-  );
-  showAuth();
+  if (chatContainer) chatContainer.innerHTML = "";
+  showAuthSection();
+  clearAuthAlert();
+  authEmail.value = "";
+  authPassword.value = "";
 }
 
-// ===============================
-// INIT
-// ===============================
+/* ============================
+   INIT
+============================ */
 document.addEventListener("DOMContentLoaded", async () => {
   initSession();
+  setAuthMode(true); // default: login
 
-  // listen auth state
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-      showChat(session.user);
-    } else {
-      showAuth();
-    }
-  });
+  // Cek kalau user sudah login (refresh page)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // cek session awal
-  const { data } = await supabase.auth.getSession();
-  if (data?.session?.user) {
-    showChat(data.session.user);
+  if (user) {
+    showChatSection(user);
   } else {
-    showAuth();
+    showAuthSection();
   }
 
-  // bind form
-  if (chatForm) {
-    chatForm.addEventListener("submit", handleChatSubmit);
-  }
-
-  if (authForm) {
-    authForm.addEventListener("submit", handleAuthSubmit);
-  }
-
-  if (toggleAuthModeBtn) {
-    toggleAuthModeBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      toggleAuthMode();
-    });
-  }
-
-  if (logoutButton) {
-    logoutButton.addEventListener("click", (e) => {
-      e.preventDefault();
-      handleLogout();
-    });
-  }
-
-  // pesan pembuka (cuma kalau container masih kosong)
-  if (chatContainer && chatContainer.children.length === 0) {
-    appendMessage(
-      "assistant",
-      "Halo, gue Azbry AI. Siap bantu lu buat ngoding, bot, atau keuangan. Login dulu, terus ketik apa aja yang mau lu tanyain. 💚"
+  // Event auth
+  if (authForm) authForm.addEventListener("submit", handleAuthSubmit);
+  if (toggleAuthModeBtn)
+    toggleAuthModeBtn.addEventListener("click", () =>
+      setAuthMode(!isLoginMode)
     );
-  }
+  if (logoutButton) logoutButton.addEventListener("click", handleLogout);
+
+  // Event chat
+  if (chatForm) chatForm.addEventListener("submit", handleChatSubmit);
 });
