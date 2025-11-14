@@ -1,48 +1,61 @@
 // api/azbry-ai.js
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// ===== ENV VARS =====
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const MODEL_NAME = process.env.MODEL_NAME || "deepseek-chat";
 
-// helper panggil OpenAI
-async function callOpenAI(messages) {
-  if (!OPENAI_API_KEY) {
+// ===== CALL DEEPSEEK (CHAT COMPLETIONS) =====
+async function callDeepSeek(messages) {
+  if (!DEEPSEEK_API_KEY) {
     return {
       reply:
-        "Azbry AI backend belum dikasih OPENAI_API_KEY di Vercel. Coba set dulu di Project Settings ya. 💚",
+        "DEEPSEEK_API_KEY belum di-set di Vercel. Tambahin dulu di Environment Variables ya.",
     };
   }
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4.1-mini",
-      messages,
-      temperature: 0.4,
-    }),
-  });
+  try {
+    const res = await fetch(
+      "https://api.deepseek.com/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model: MODEL_NAME, // deepseek-chat / deepseek-reasoner
+          messages,
+          stream: false,
+        }),
+      }
+    );
 
-  if (!res.ok) {
-    const text = await res.text();
-    console.error("OpenAI error:", res.status, text);
+    if (!res.ok) {
+      const txt = await res.text();
+      console.error("DeepSeek HTTP error:", res.status, txt);
+      return {
+        reply: `Azbry AI lagi error dari sisi model (HTTP ${res.status}). Coba lagi nanti ya.`,
+      };
+    }
+
+    const data = await res.json();
+    const reply =
+      data.choices?.[0]?.message?.content ||
+      "Model DeepSeek nggak ngasih jawaban. Coba tanya ulang ya.";
+
+    return { reply };
+  } catch (err) {
+    console.error("DeepSeek fetch error:", err);
     return {
-      reply: `Azbry AI lagi error dari sisi model (HTTP ${res.status}). Coba lagi nanti ya.`,
+      reply:
+        "Azbry AI nggak bisa nyambung ke DeepSeek (network error). Coba cek koneksi / tunggu sebentar.",
     };
   }
-
-  const data = await res.json();
-  const reply =
-    data.choices?.[0]?.message?.content ||
-    "Azbry AI nggak ngasih jawaban. Coba tanya ulang ya.";
-
-  return { reply };
 }
 
-// helper panggil Supabase REST
+// ===== SUPABASE HELPERS (SESSION + LOG) =====
 function sbHeaders() {
   return {
     apikey: SUPABASE_SERVICE_ROLE_KEY,
@@ -51,7 +64,7 @@ function sbHeaders() {
   };
 }
 
-// pastikan sesi ada, kalau belum buat
+// Pastikan session row ada di azbry_ai_sessions
 async function ensureSession(sessionExternalId) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !sessionExternalId) return null;
 
@@ -73,7 +86,7 @@ async function ensureSession(sessionExternalId) {
     const rows = await res.json();
     if (rows.length > 0) return rows[0].id;
 
-    // kalau belum ada → insert baru
+    // insert baru kalau belum ada
     const insertRes = await fetch(`${base}/azbry_ai_sessions`, {
       method: "POST",
       headers,
@@ -93,7 +106,7 @@ async function ensureSession(sessionExternalId) {
   }
 }
 
-// simpan message user & AI
+// Simpan 2 row: user & assistant
 async function logMessages(sessionDbId, userMessage, aiReply) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !sessionDbId) return;
   const base = `${SUPABASE_URL}/rest/v1`;
@@ -120,7 +133,7 @@ async function logMessages(sessionDbId, userMessage, aiReply) {
   }
 }
 
-// Vercel handler
+// ===== VERCEL API HANDLER =====
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -134,16 +147,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Pesan nggak kebaca di backend." });
     }
 
-    // potong history biar gak kepanjangan
+    // ambil history terakhir biar nggak kepanjangan
     const shortHistory = Array.isArray(history) ? history.slice(-8) : [];
 
     const messages = [
       {
         role: "system",
         content:
-          "Kamu adalah Azbry AI, asisten milik FebryWesker. Gaya bahasa santai, tapi tetap jelas. " +
-          "Fokus bantu soal bot WhatsApp (Azbry-MD), ngoding, Supabase, dan keuangan pribadi. " +
-          "Jawab singkat, rapi, pakai poin kalau perlu.",
+          "Kamu adalah Azbry AI, asisten milik FebryWesker. Gaya bahasa santai, jelas, dan fokus ke: " +
+          "bot WhatsApp (Baileys / Azbry-MD), ngoding JS/Node, Supabase, dan keuangan pribadi. " +
+          "Jawab rapi, jangan kepanjangan, pakai poin kalau perlu.",
       },
       ...shortHistory.map((m) => ({
         role: m.role === "assistant" ? "assistant" : "user",
@@ -152,10 +165,10 @@ export default async function handler(req, res) {
       { role: "user", content: message },
     ];
 
-    // panggil OpenAI
-    const { reply } = await callOpenAI(messages);
+    // panggil DeepSeek
+    const { reply } = await callDeepSeek(messages);
 
-    // simpan ke Supabase (kalau env lengkap)
+    // log ke Supabase
     let sessionDbId = null;
     if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && sessionId) {
       sessionDbId = await ensureSession(sessionId);
