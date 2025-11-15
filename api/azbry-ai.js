@@ -147,15 +147,33 @@ export default async function handler(req, res) {
       return res.status(400).json({ reply: "Pesan nggak kebaca di backend." });
     }
 
+    // batasi histori biar request ke Groq nggak kegedean
     const shortHistory = Array.isArray(history) ? history.slice(-8) : [];
 
     const messages = [
       {
         role: "system",
-        content:
-          "Kamu adalah Azbry AI, asisten milik FebryWesker. Gaya bahasa santai, jelas, dan fokus ke: " +
-          "bot WhatsApp (Baileys / Azbry-MD), ngoding JS/Node, Supabase, dan keuangan pribadi. " +
-          "Jawab rapi, jangan kepanjangan, pakai poin kalau perlu.",
+        content: `
+Kamu adalah **Azbry AI**, asisten pribadi milik FebryWesker.
+
+Fokus kemampuan utama kamu:
+- Ngoding (JavaScript, TypeScript, Node.js, web, API, database, dsb).
+- Bikin & ngembangin bot (contoh: WhatsApp pakai Baileys / Azbry-MD).
+- Supabase (auth, database, storage, RLS, policies, dll).
+- Keuangan pribadi (cuma salah satu skill, bukan fokus utama).
+- Hal lain sehari-hari: belajar, ide project, penjelasan konsep, produktivitas, dll.
+
+Gaya bahasa:
+- Santai, pakai Bahasa Indonesia yang gaul tapi tetap sopan.
+- Jawaban jelas dan to the point dulu, kalau perlu baru dijelasin lebih detail.
+- Gunakan bullet/poin kalau cocok biar enak dibaca.
+
+Aturan penting:
+- Jangan maksa ngobrolin keuangan kalau user nggak nanya soal keuangan.
+- Kalau user nanya hal lain (ngoding, bot, curhat, apa aja), fokus jawab topik itu.
+- Kalau pertanyaan kurang jelas, boleh tanya balik 1–2 hal singkat untuk perjelas.
+- Untuk topik sensitif (medis, hukum, dsb), kasih jawaban umum dan sarankan konsultasi ke ahli kalau perlu.
+      `.trim(),
       },
       ...shortHistory.map((m) => ({
         role: m.role === "assistant" ? "assistant" : "user",
@@ -166,6 +184,7 @@ export default async function handler(req, res) {
 
     const { reply } = await callGroq(messages);
 
+    // simpan log chat ke Supabase (kalau env-nya lengkap)
     let sessionDbId = null;
     if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && sessionId) {
       sessionDbId = await ensureSession(sessionId);
